@@ -28,7 +28,7 @@ type Result struct {
 	// The followings are timeline of request
 	NameLookup    time.Duration
 	Connect       time.Duration
-	Pretransfer   time.Duration
+	PreTransfer   time.Duration
 	StartTransfer time.Duration
 	total         time.Duration
 
@@ -48,7 +48,7 @@ type Result struct {
 	serverStart   time.Time
 	serverDone    time.Time
 	transferStart time.Time
-	trasferDone   time.Time // need to be provided from outside
+	transferDone   time.Time // need to be provided from outside
 
 	// isTLS is true when connection seems to use TLS
 	isTLS bool
@@ -67,7 +67,7 @@ func (r *Result) durations() map[string]time.Duration {
 
 		"NameLookup":    r.NameLookup,
 		"Connect":       r.Connect,
-		"Pretransfer":   r.Connect,
+		"PreTransfer":   r.Connect,
 		"StartTransfer": r.StartTransfer,
 		"Total":         r.total,
 	}
@@ -100,7 +100,7 @@ func (r Result) Format(s fmt.State, verb rune) {
 			fmt.Fprintf(&buf, "Connect:        %4d ms\n",
 				int(r.Connect/time.Millisecond))
 			fmt.Fprintf(&buf, "Pre Transfer:   %4d ms\n",
-				int(r.Pretransfer/time.Millisecond))
+				int(r.PreTransfer/time.Millisecond))
 			fmt.Fprintf(&buf, "Start Transfer: %4d ms\n",
 				int(r.StartTransfer/time.Millisecond))
 
@@ -140,7 +140,7 @@ func WithHTTPStat(ctx context.Context, r *Result) context.Context {
 // End sets the time when reading response is done.
 // This must be called after reading response body.
 func (r *Result) End(t time.Time) {
-	r.trasferDone = t
+	r.transferDone = t
 
 	// This means result is empty (it does nothing).
 	// Skip setting value(contentTransfer and total will be zero).
@@ -148,8 +148,8 @@ func (r *Result) End(t time.Time) {
 		return
 	}
 
-	r.contentTransfer = r.trasferDone.Sub(r.transferStart)
-	r.total = r.trasferDone.Sub(r.dnsStart)
+	r.contentTransfer = r.transferDone.Sub(r.transferStart)
+	r.total = r.transferDone.Sub(r.dnsStart)
 }
 
 // ContentTransfer returns the duration of content transfer time.
@@ -226,7 +226,7 @@ func withClientTrace(ctx context.Context, r *Result) context.Context {
 			r.tlsDone = time.Now()
 
 			r.TLSHandshake = r.tlsDone.Sub(r.tlsStart)
-			r.Pretransfer = r.tlsDone.Sub(r.dnsStart)
+			r.PreTransfer = r.tlsDone.Sub(r.dnsStart)
 		},
 
 		GotConn: func(i httptrace.GotConnInfo) {
@@ -274,7 +274,7 @@ func withClientTrace(ctx context.Context, r *Result) context.Context {
 			}
 
 			r.TLSHandshake = r.tcpDone.Sub(r.tcpDone)
-			r.Pretransfer = r.Connect
+			r.PreTransfer = r.Connect
 		},
 
 		GotFirstResponseByte: func() {

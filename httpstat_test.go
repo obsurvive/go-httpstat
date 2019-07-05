@@ -224,7 +224,7 @@ func TestHTTPStat_Formatter(t *testing.T) {
 
 		NameLookup:    100 * time.Millisecond,
 		Connect:       100 * time.Millisecond,
-		Pretransfer:   100 * time.Millisecond,
+		PreTransfer:   100 * time.Millisecond,
 		StartTransfer: 100 * time.Millisecond,
 		total:         100 * time.Millisecond,
 
